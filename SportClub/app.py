@@ -11,7 +11,6 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    print(request)
     context = {
         'static_url':config.STATIC_URL,
         "name":"Fazel"
@@ -19,6 +18,9 @@ def index():
     return render_template('index.html',**context)
 
 
-
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+
