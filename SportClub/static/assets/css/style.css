@@ -81,6 +81,19 @@ p {
     background-color: #fff;
 }
 
+/* Custome */
+.nav li a {
+    background: none!important;
+}
+
+.nav li a:hover{
+    color: #08294c!important;
+}
+
+/* End */
+
+
+
 .nav li a:hover, .nav li a:focus {
     background: transparent;
 }
