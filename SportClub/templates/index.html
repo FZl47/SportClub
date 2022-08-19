@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="fa">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Runner onepage - html</title>
+    <title>مجتمع ورزشی ایکس و ایگرگ</title>
     <meta name="keywords" content="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod.">
     <meta name="description" content="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod.">
 
@@ -32,15 +32,16 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="#"></a>
+                    <div class="navbar-brand">
+{#                        <img src="{{ static_url }}/assets/images/logo-ball.png" alt="Logo Ball">#}
+                        Logo
+                    </div>
                 </div>
                 <div class="collapse navbar-collapse" id="myNavbar">
                     <ul class="nav navbar-nav pull-right">
-                        <li><a href="#">HOME</a></li>
-                        <li><a href="#">TESTIMONIALS</a></li>
-                        <li><a href="#">TEAMS</a></li>
-                        <li><a href="#">ABOUT</a></li>
-                        <li><a href="tel:97979">CONTACT</a></li>
+                        <li><a href="#">درباره ما</a></li>
+                        <li><a href="tel:03433225050">تماس با ما</a></li>
+                        <li><a href="#">رزرو</a></li>
                     </ul>
                 </div>
             </nav>
@@ -49,11 +50,12 @@
                     <img class="img-rwesponsive" src="{{ static_url }}/assets/images/running-man.png" alt="">
                 </div>
                 <div class="col-lg-6 header__content">
-                    <h1 class="title">Geometria Title Goes Here <span class="title-style"></span></h1>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut
-                        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud</p>
-                    <a class="header__button" href="#">LEARN MORE</a>
-                    <a class="header__button" href="#">DISCOVER</a>
+                    <h1 class="title">مجتمع ورزشی ایکس و ایگرگ <span class="title-style"></span></h1>
+                    <p>
+                        ن را می طلبد تا با نرم افزارها شناخت بیشتری را برای طراحان رایانه ای علی الخصوص طراحان خلاقی و فرهنگ پیشرو در زبان فارسی ایجاد کرد. در این صورت می توان امید داشت که تمام و دشواری موجود در ارائه راهکارها و شرایط سخت تایپ به پایان رسد وزمان مورد نیاز شامل حروفچینی دستاوردهای اصلی و جوابگوی سوالات پیوسته اهل دنیای موجود طراحی اساسا مورد استفاده قرار گیرد.
+                    </p>
+                    <a class="header__button" href="#">تماس با ما</a>
+                    <a class="header__button" href="#">رزرو</a>
                 </div>
             </div>
         </div>
@@ -62,34 +64,25 @@
     <section class="steps">
         <div class="container">
             <div class="page-section text-center">
-                <h2 class="page-section__title">Reserve Time</h2>
+                <h2 class="page-section__title">رزرو وقت</h2>
                 <div class="page-section__title-style">
                     <span class="first-line"></span>
                     <span class="second-line"></span>
                 </div>
-                <p class="page-section__subtitle">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-                    eiusmod tempor incididunt ut labore et</p>
+                <p class="page-section__subtitle">
+                 ید داشت که تمام و دشواری موجود در ارائه راهکارها و شرایط سخت تایپ به پایان رسد وزمان مورد نیاز شامل حروفچینی دستاوردهای اصلی و جوابگوی سوالات پیوسته اهل دنیای موجود طراحی اساسا مورد استفاده قرار گیرد.
+                </p>
                 <div class="row">
-                    <div class="col-md-4">
-                        <div class="text-center steps__single steps__single-first">
-                            <img src="{{ static_url }}/assets/images/step1.png" alt="">
-                            <p>LOREM IPSUM DOLOR SIT AMET</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="text-center steps__single">
-                            <img src="{{ static_url }}/assets/images/step2.png" alt="">
-                            <p>LOREM IPSUM DOLOR SIT AMET</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="text-center steps__single steps__single-last">
-                            <img src="{{ static_url }}/assets/images/step3.png" alt="">
-                            <p>LOREM IPSUM DOLOR SIT AMET</p>
-                        </div>
-                    </div>
+                    <table >
+                        <tr>
+                            {% for day in days %}
+                                <th {% if day.is_today() %}style="color: red" {% endif %}>
+                                    {{ day.get_day_name() }}
+                                </th>
+                            {% endfor %}
+                        </tr>
+                    </table>
                 </div>
-                
             </div>
         </div>
     </section>
@@ -141,30 +134,7 @@
     </div>
     <!-- video-popup-end -->
 
-    <section class="sponsors sponsors--bg">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-2 sponsors__single">
-                    <img src="{{ static_url }}/assets/images/sponsors1.png" alt="">
-                </div>
-                <div class="col-lg-2 sponsors__single">
-                    <img src="{{ static_url }}/assets/images/sponsors2.png" alt="">
-                </div>
-                <div class="col-lg-2 sponsors__single">
-                    <img src="{{ static_url }}/assets/images/sponsors3.png" alt="">
-                </div>
-                <div class="col-lg-2 sponsors__single">
-                    <img src="{{ static_url }}/assets/images/sponsors4.png" alt="">
-                </div>
-                <div class="col-lg-2 sponsors__single">
-                    <img src="{{ static_url }}/assets/images/sponsors5.png" alt="">
-                </div>
-                <div class="col-lg-2 sponsors__single">
-                    <img src="{{ static_url }}/assets/images/sponsors6.png" alt="">
-                </div>
-            </div>
-        </div>
-    </section>
+
 
     <section class="testimonial">
         <div class="container">
