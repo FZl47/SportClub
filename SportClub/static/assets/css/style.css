@@ -13,6 +13,16 @@
     src: url("/static/assets/fonts/geometria-medium.ttf");
 }
 
+@font-face {
+    font-family: 'Vazir';
+    src: url("/static/assets/fonts/Vazir-Thin.woff");
+}
+
+@font-face {
+    font-family: 'Kalameh';
+    src: url("/static/assets/fonts/Kalameh_Black.woff");
+}
+
 @media (min-width: 1400px) {
     .container {
         width: 1370px;
@@ -60,17 +70,22 @@ html, body {
     margin: 0px;
     padding: 0px;
     overflow-x: hidden;
-    font-family: 'Geometria';
+    font-family: 'Vazir';
     line-height: 1.8;
 }
 
+
 h1, h2 {
-    font-family: 'Geometria-Bold';
+    font-family: 'Kalameh'!important;
 }
 
 p {
-    font-family: "Geometria";
+    font-family: "Vazir";
     font-weight: bold;
+    line-height: 33px;
+    direction: rtl;
+    color: #999;
+    text-align: justify;
 }
 
 .navbar-toggle {
@@ -153,9 +168,11 @@ p {
 }
 
 .header .nav li a {
-    font-family: 'Geometria-Medium';
-    font-size: 15px;
-    color: #b0bec5;
+    font-family: 'Vazir';
+    font-size: 19px;
+    color: #aaa;
+    font-weight: bold;
+    transition: all .2s;
 }
 
 @media (min-width: 1390px) {
@@ -212,17 +229,16 @@ p {
 }
 
 .header__content p {
-    font-size: 18px;
-    color: #08294c;
-    font-weight: bold;
+    font-size: 17px;
     line-height: 2;
     margin-bottom: 50px;
 }
 
 .header__button {
     display: inline-block;
-    font-family: 'Geometria-Medium';
-    font-size: 16px;
+    font-family: 'Vazir';
+    font-size: 18px;
+    font-weight: bold;
     color: #0f81f8;
     padding: 13px 50px;
     margin: 10px ;
@@ -267,8 +283,12 @@ p {
 }
 
 .navbar-brand {
-    background: url("/static/assets/images/logo.png") left center no-repeat;
-    padding: 0px 90px;
+
+}
+
+.navbar-brand img{
+    width: 70px!important;
+    height: 70px!important;
 }
 
 .page-section {
@@ -288,7 +308,6 @@ p {
 
 .page-section__subtitle {
     font-size: 16px;
-    color: #08294c;
     margin-bottom: 80px;
 }
 
