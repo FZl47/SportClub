@@ -17,7 +17,7 @@ def index():
     context = {
         'static_url':config.STATIC_URL,
         "name":"Fazel",
-        'info':models.get_data_info()
+        'days':models.Day.all()
     }
     return render_template('index.html',**context)
 
