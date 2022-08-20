@@ -216,7 +216,7 @@ class Day:
 
     def is_today(self):
         today_num = datetime.datetime.now().isoweekday()
-        print(self.day)
+        today_num = config.CONVERT_DAY_TO_DAY_PERSIAN(today_num)
         if today_num  == self.day:
             return True
         return False
