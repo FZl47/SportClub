@@ -19,32 +19,21 @@ def close_connection(conn):
 
 # Create Tables
 
-_LIST_FUNC_SQL_COMMANDS = []
+_LIST_FUNC_SQL_COMMANDS_CREATE_TABLE = []
 
 
-def sql_command(func):
-    _LIST_FUNC_SQL_COMMANDS.append(func)
-
+def sql_command_create_table(func):
+    _LIST_FUNC_SQL_COMMANDS_CREATE_TABLE.append(func)
     def wrapper(*args):
         return func(*args)
 
     return wrapper
 
 
-# @sql_command
-# def create_table_info():
-#     sql = """
-#         CREATE TABLE IF NOT EXISTS info (
-#             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-#             about_us TEXT,
-#             emails TEXT,
-#             phones TEXT
-#         );
-#     """
-#     return sql
 
 
-@sql_command
+
+@sql_command_create_table
 def create_table_times():
     sql = """
         CREATE TABLE IF NOT EXISTS time(
@@ -57,7 +46,7 @@ def create_table_times():
     return sql
 
 
-@sql_command
+@sql_command_create_table
 def create_table_days():
     """
         day is day number like (
@@ -78,7 +67,7 @@ def create_table_days():
     """
     return sql
 
-@sql_command
+@sql_command_create_table
 def create_table_day_times_ManyToMany():
     """
         ManyToMany
@@ -96,39 +85,37 @@ def create_table_day_times_ManyToMany():
     return sql
 
 
+@sql_command_create_table
+def create_table_order():
+    """
+        Create table for reserve time and payment
+    """
+    sql = """
+                CREATE TABLE IF NOT EXISTS `order`(
+                id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                name VARCHAR(255) NOT NULL ,
+                phone VARCHAR (20) NOT NULL ,
+                date_submit DATETIME NOT NULL ,
+                price_pay DECIMAL NOT NULL ,
+                day_id INTEGER NOT NULL,
+                time_id INTEGER NOT NULL,
+                FOREIGN KEY (day_id) REFERENCES day(id),
+                FOREIGN KEY (time_id) REFERENCES time(id)
+            );
+        """
+    return sql
+
 
 def _migrate():
     conn = create_connection()
     cursor = conn.cursor()
-    for handler_sql in _LIST_FUNC_SQL_COMMANDS:
+    for handler_sql in _LIST_FUNC_SQL_COMMANDS_CREATE_TABLE:
         sql = handler_sql()
         cursor.execute(sql)
     conn.commit()
     close_connection(conn)
     print('----------- Migrate Successfully ------------')
 
-
-
-
-
-
-def test_get():
-
-
-    sql = """
-            SELECT day.day, time.*
-            FROM day
-            INNER JOIN day_time 
-                ON day.id = day_time.day_id
-            INNER JOIN time
-                ON time.id = day_time.time_id
-  
-    """
-    conn = create_connection()
-    cursor = conn.cursor()
-    data = cursor.execute(sql).fetchall()
-    print(data)
-    close_connection(conn)
 
 
 class Time:
@@ -138,17 +125,20 @@ class Time:
         self.time_start = data.get('time_start')
         self.time_end = data.get('time_end')
         self.price = data.get('price')
+        self.available = data.get('available')
 
     def __repr__(self):
         return 'time_obj'
 
     def _convert_data_tuple_to_dict(self,data):
+        available = True if data[5] == None else False
         return {
             'day':data[0],
             'id':data[1],
             'time_start':data[2],
             'time_end':data[3],
             'price':data[4],
+            'available':available,
         }
 
 class Day:
@@ -166,7 +156,7 @@ class Day:
     def all(cls):
         """
             get all record table "day"
-        :return => list days object => [day_obj,day_obj,...]
+            :return => list days object => [day_obj,day_obj,...]
         """
         results = []
         sql = f"""
@@ -192,27 +182,37 @@ class Day:
         """
             get all record table "time"
             :return => list times object => [time_obj,time_obj,...]
-          """
+        """
+        today_time = datetime.datetime.now()
+        datetime_range = (
+            today_time,
+            today_time + datetime.timedelta(weeks=1)
+        )
         results = []
         sql = f"""
-                SELECT day.day , time.*
+                SELECT day.day , time.*, `order`.id 
                 FROM day
                 INNER JOIN day_time 
                     ON day.id = day_time.day_id
                 INNER JOIN time
                     ON time.id = day_time.time_id
+                LEFT JOIN `order`
+                    ON `order`.day_id = day_time.day_id AND `order`.time_id = day_time.time_id AND `order`.date_submit >= '{datetime_range[0]}' AND `order`.date_submit <= '{datetime_range[1]}'
                 WHERE day.id = '{self.id}'
         """
         conn = create_connection()
         cursor = conn.cursor()
         times_data = cursor.execute(sql).fetchall()
         for time in times_data:
+
             results.append(Time(time))
         close_connection(conn)
         return results
 
+
     def get_day_name(self):
         return config.WEEKDAYS.get(self.day)
+
 
     def is_today(self):
         today_num = datetime.datetime.now().isoweekday()
