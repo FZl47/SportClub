@@ -33,7 +33,7 @@
                         <span class="icon-bar"></span>
                     </button>
                     <div class="navbar-brand">
-{#                        <img src="{{ static_url }}/assets/images/logo-ball.png" alt="Logo Ball">#}
+                        {#                        <img src="{{ static_url }}/assets/images/logo-ball.png" alt="Logo Ball">#}
                         Logo
                     </div>
                 </div>
@@ -52,7 +52,10 @@
                 <div class="col-lg-6 header__content">
                     <h1 class="title">مجتمع ورزشی ایکس و ایگرگ <span class="title-style"></span></h1>
                     <p>
-                        ن را می طلبد تا با نرم افزارها شناخت بیشتری را برای طراحان رایانه ای علی الخصوص طراحان خلاقی و فرهنگ پیشرو در زبان فارسی ایجاد کرد. در این صورت می توان امید داشت که تمام و دشواری موجود در ارائه راهکارها و شرایط سخت تایپ به پایان رسد وزمان مورد نیاز شامل حروفچینی دستاوردهای اصلی و جوابگوی سوالات پیوسته اهل دنیای موجود طراحی اساسا مورد استفاده قرار گیرد.
+                        ن را می طلبد تا با نرم افزارها شناخت بیشتری را برای طراحان رایانه ای علی الخصوص طراحان خلاقی و
+                        فرهنگ پیشرو در زبان فارسی ایجاد کرد. در این صورت می توان امید داشت که تمام و دشواری موجود در
+                        ارائه راهکارها و شرایط سخت تایپ به پایان رسد وزمان مورد نیاز شامل حروفچینی دستاوردهای اصلی و
+                        جوابگوی سوالات پیوسته اهل دنیای موجود طراحی اساسا مورد استفاده قرار گیرد.
                     </p>
                     <a class="header__button" href="#">تماس با ما</a>
                     <a class="header__button" href="#">رزرو</a>
@@ -70,17 +73,34 @@
                     <span class="second-line"></span>
                 </div>
                 <p class="page-section__subtitle">
-                 ید داشت که تمام و دشواری موجود در ارائه راهکارها و شرایط سخت تایپ به پایان رسد وزمان مورد نیاز شامل حروفچینی دستاوردهای اصلی و جوابگوی سوالات پیوسته اهل دنیای موجود طراحی اساسا مورد استفاده قرار گیرد.
+                    ید داشت که تمام و دشواری موجود در ارائه راهکارها و شرایط سخت تایپ به پایان رسد وزمان مورد نیاز شامل
+                    حروفچینی دستاوردهای اصلی و جوابگوی سوالات پیوسته اهل دنیای موجود طراحی اساسا مورد استفاده قرار گیرد.
                 </p>
                 <div class="row">
                     <table dir="rtl">
-                        <tr>
-                            {% for day in days %}
-                                <th {% if day.is_today() %}style="color: red" {% endif %}>
+                        {% for day in days %}
+                            <tr {% if day.is_today() == True %}class="today"{% endif %}>
+                                <td>
                                     {{ day.get_day_name() }}
-                                </th>
-                            {% endfor %}
-                        </tr>
+                                </td>
+                                {% with times = day.get_times() %}
+                                    {% for time in times %}
+                                        <td class="time {% if time.available == True %}available {% else %}not-available {% endif %}">
+                                            <p class="time-timing">{{ time.time_start }} - {{ time.time_end }}</p>
+                                            <p class="time-price">
+                                                {{ time.price }}
+                                                <span class="symbol-currency">تومان</span>
+                                            </p>
+                                        </td>
+                                    {% endfor %}
+                                    {% if times == [] %}
+                                        <td class="time-not-found">
+                                            وقتی یافت نشد
+                                        </td>
+                                    {% endif %}
+                                {% endwith %}
+                            </tr>
+                        {% endfor %}
                     </table>
                 </div>
             </div>
@@ -133,7 +153,6 @@
         </div>
     </div>
     <!-- video-popup-end -->
-
 
 
     <section class="testimonial">
