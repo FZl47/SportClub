@@ -16,7 +16,6 @@ app = Flask(__name__)
 def index():
     context = {
         'static_url':config.STATIC_URL,
-        "name":"Fazel",
         'days':models.Day.all()
     }
     return render_template('index.html',**context)
