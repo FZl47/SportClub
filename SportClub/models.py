@@ -131,6 +131,7 @@ class Time:
         return 'time_obj'
 
     def _convert_data_tuple_to_dict(self,data):
+        print(data)
         available = True if data[5] == None else False
         return {
             'day':data[0],
@@ -141,8 +142,54 @@ class Time:
             'available':available,
         }
 
-class Day:
+    @classmethod
+    def get(cls,time_id,day_id):
+        today_time = datetime.datetime.now()
+        datetime_range = (
+            today_time,
+            today_time + datetime.timedelta(weeks=1)
+        )
+        sql = f"""
+                SELECT day.day , time.*, `order`.id
+                FROM day
+                INNER JOIN day_time
+                    ON day.id = day_time.day_id AND time.id = day_time.time_id
+                INNER JOIN time
+                    ON time.id = '{time_id}'
+                LEFT JOIN `order`
+                    ON `order`.day_id = day_time.day_id AND `order`.time_id = day_time.time_id  AND `order`.date_submit <= '{datetime_range[1]}'
+                WHERE day.id = '{day_id}'
+        """
+        conn = create_connection()
+        cursor = conn.cursor()
+        time = cursor.execute(sql).fetchone()
+        time_obj = None
+        if time:
+            time_obj = Time(time)
+        close_connection(conn)
+        return time_obj
 
+    def reserve_time(self,name,phone,day_id):
+        today_time = datetime.datetime.now()
+        sql = f"""
+                INSERT INTO `order` (`name`,phone,date_submit,price_pay,day_id,time_id)
+                VALUES (
+                    '{name}',
+                    '{phone}',
+                    '{today_time}',
+                    '{self.price}',
+                    '{day_id}',
+                    '{self.id}'
+                );       
+        """
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute(sql)
+        conn.commit()
+        close_connection(conn)
+        return 200
+
+class Day:
 
     def __init__(self,data):
         data = self._convert_data_tuple_to_dict(data)
@@ -197,14 +244,13 @@ class Day:
                 INNER JOIN time
                     ON time.id = day_time.time_id
                 LEFT JOIN `order`
-                    ON `order`.day_id = day_time.day_id AND `order`.time_id = day_time.time_id AND `order`.date_submit >= '{datetime_range[0]}' AND `order`.date_submit <= '{datetime_range[1]}'
+                    ON `order`.day_id = day_time.day_id AND `order`.time_id = day_time.time_id AND `order`.date_submit <= '{datetime_range[1]}'
                 WHERE day.id = '{self.id}'
         """
         conn = create_connection()
         cursor = conn.cursor()
         times_data = cursor.execute(sql).fetchall()
         for time in times_data:
-
             results.append(Time(time))
         close_connection(conn)
         return results
