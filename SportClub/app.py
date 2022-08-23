@@ -4,6 +4,7 @@ from flask import (
     request,
     render_template
 )
+import tools
 import sys
 import config
 import models
@@ -19,6 +20,37 @@ def index():
         'days':models.Day.all()
     }
     return render_template('index.html',**context)
+
+
+@app.post('/reserve-time')
+def reserve_time():
+    """
+        Method allow : POST
+    """
+    status_code = 0
+    data = request.form
+    time_id = data.get('time_id') or None
+    day_id = data.get('day_id') or None
+    name = data.get('name')
+    phone = data.get('phone')
+    if time_id and day_id and time_id.isdigit() and day_id.isdigit() and name and phone:
+        time_object = models.Time.get(time_id,day_id)
+        if time_object:
+            if time_object.available:
+                # Payment ...
+                time_object.reserve_time(name,phone,day_id)
+                return tools.Set_Cookie_Functionality('وقت شما با موفقیت رزرو شد','Success')
+                status_code = 200
+            else:
+                status_code = 204
+        else:
+            status_code = 404
+    else:
+        status_code = 400
+
+    return jsonify({
+        'statuc_code':status_code
+    })
 
 
 if __name__ == '__main__':
