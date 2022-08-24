@@ -86,6 +86,7 @@ html, body {
     overflow-x: hidden;
     font-family: 'Vazir';
     line-height: 1.8;
+    scroll-behavior: smooth;
 }
 
 
@@ -544,12 +545,21 @@ tr td:first-of-type {
     padding: 12px 70px;
     border-radius: 30px;
     border: 0;
-    font-family: "Geometria-Medium";
+    font-family: "Vazir";
+    font-weight: bold;
     background-color: #fff;
-    font-size: 16px;
+    font-size: 18px;
     color: #0f81f8;
     -webkit-box-shadow: 3px 4px 7px rgba(0, 0, 0, 0.21);
     box-shadow: 3px 4px 7px rgba(0, 0, 0, 0.21);
+    border: 1px solid transparent;
+    transition: all .2s;
+}
+
+.button--form:hover{
+    border: 1px solid #fff;
+    background: #20f2a0;
+    color: #fff;
 }
 
 .video--bg {
@@ -1079,29 +1089,10 @@ tr td:first-of-type {
     }
 }
 
-.form ::-webkit-input-placeholder { /* WebKit, Blink, Edge */
-    font-size: 16px;
-    color: #fff;
-}
-
-.form :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-    font-size: 16px;
-    color: #fff;
-}
-
-.form ::-moz-placeholder { /* Mozilla Firefox 19+ */
-    font-size: 16px;
-    color: #fff;
-}
-
-.form :-ms-input-placeholder { /* Internet Explorer 10-11 */
-    font-size: 16px;
-    color: #fff;
-}
-
-.form ::-ms-input-placeholder { /* Microsoft Edge */
-    font-size: 16px;
-    color: #fff;
+::placeholder{
+    color: #ddd !important;
+    font-family: Vazir;
+    font-size: 17px;
 }
 
 .footer--bg {
@@ -1131,9 +1122,9 @@ tr td:first-of-type {
 }
 
 .footer__link li a {
-    font-family: "Geometria-Medium";
-    font-size: 16px;
-    color: #254B74;
+    font-family: Vazir;
+    font-size: 17px;
+    color: #6ca6df;
 }
 
 .footer__social-icons {
@@ -1386,7 +1377,7 @@ tr td:first-of-type {
 }
 
 .LevelOfNecessity_2 p {
-    font-size: 95%;
+    font-size: 100%!important;
 }
 
 .LevelOfNecessity_3 {
@@ -1394,7 +1385,7 @@ tr td:first-of-type {
 }
 
 .LevelOfNecessity_3 p {
-    font-size: 100%;
+    font-size: 105%!important;
 }
 
 .LevelOfNecessity_4 {
@@ -1402,7 +1393,7 @@ tr td:first-of-type {
 }
 
 .LevelOfNecessity_4 p {
-    font-size: 110%;
+    font-size: 110%!important;
 }
 
 .LevelOfNecessity_5 {
@@ -1410,7 +1401,7 @@ tr td:first-of-type {
 }
 
 .LevelOfNecessity_5 p {
-    font-size: 120%;
+    font-size: 120%!important;
 }
 
 
@@ -1418,13 +1409,14 @@ tr td:first-of-type {
     margin: 0;
     margin-top: 2px;
     padding-bottom: 20px;
+    padding-right: 20px;
 }
 
 .IconNotification {
     position: absolute;
     left: 7px;
     top: 7px;
-    font-size: 110%;
+    font-size: 130%!important;
 }
 
 .IconNotification_Success {
@@ -1682,4 +1674,18 @@ tr td:first-of-type {
     display: block;
     border-radius: 8px;
     font-size: 110%;
+}
+
+.container-phone{
+    background: #fff;
+    border-radius: 15px;
+    margin: auto;
+    margin-bottom: 100px;
+    display: inline-block;
+    padding: 20px 60px;
+}
+
+.container-phone > div{
+    font-size: 160%;
+    color: #ff765b;
 }

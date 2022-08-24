@@ -52,6 +52,19 @@ def reserve_time():
         'statuc_code':status_code
     })
 
+@app.post('/submit-message')
+def submit_message():
+    """
+        Method allow : POST
+    """
+    data = request.form
+    name = data.get('name')
+    phone = data.get('phone')
+    message = data.get('message')
+    if name and phone and message:
+        models.ContactUs.add(name,phone,message)
+        return tools.Set_Cookie_Functionality('نظر شما با موفقیت ثبت شد','Success')
+    return tools.Set_Cookie_Functionality('لطفا فیلد هارا به درستی پر نمایید','Error')
 
 if __name__ == '__main__':
     commands = {}
