@@ -96,11 +96,28 @@ def create_table_order():
                 name VARCHAR(255) NOT NULL ,
                 phone VARCHAR (20) NOT NULL ,
                 date_submit DATETIME NOT NULL ,
+                datetime_reserve DATETIME NOT NULL ,
                 price_pay DECIMAL NOT NULL ,
                 day_id INTEGER NOT NULL,
                 time_id INTEGER NOT NULL,
                 FOREIGN KEY (day_id) REFERENCES day(id),
                 FOREIGN KEY (time_id) REFERENCES time(id)
+            );
+        """
+    return sql
+
+
+@sql_command_create_table
+def create_table_contactus():
+    """
+        Create table for reserve time and payment
+    """
+    sql = """
+                CREATE TABLE IF NOT EXISTS contact_us(
+                id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                name VARCHAR(255) NOT NULL ,
+                phone VARCHAR (20) NOT NULL ,
+                message TEXT NOT NULL 
             );
         """
     return sql
@@ -122,16 +139,17 @@ class Time:
     def __init__(self,data):
         data = self._convert_data_tuple_to_dict(data)
         self.id = data.get('id')
+        self.day = data.get('day')
         self.time_start = data.get('time_start')
         self.time_end = data.get('time_end')
         self.price = data.get('price')
         self.available = data.get('available')
 
+
     def __repr__(self):
         return 'time_obj'
 
     def _convert_data_tuple_to_dict(self,data):
-        print(data)
         available = True if data[5] == None else False
         return {
             'day':data[0],
@@ -157,7 +175,7 @@ class Time:
                 INNER JOIN time
                     ON time.id = '{time_id}'
                 LEFT JOIN `order`
-                    ON `order`.day_id = day_time.day_id AND `order`.time_id = day_time.time_id  AND `order`.date_submit <= '{datetime_range[1]}'
+                    ON `order`.day_id = day_time.day_id AND `order`.time_id = day_time.time_id  AND `order`.datetime_reserve <= '{datetime_range[1]}'
                 WHERE day.id = '{day_id}'
         """
         conn = create_connection()
@@ -171,12 +189,18 @@ class Time:
 
     def reserve_time(self,name,phone,day_id):
         today_time = datetime.datetime.now()
+        days_delta = self.day - config.CONVERT_DAY_TO_DAY_PERSIAN(today_time.isoweekday())
+        if days_delta < 1:
+            days_delta += 7
+        datetime_reserve = (today_time + datetime.timedelta(days=days_delta)).strftime('%Y-%m-%d')
+
         sql = f"""
-                INSERT INTO `order` (`name`,phone,date_submit,price_pay,day_id,time_id)
+                INSERT INTO `order` (`name`,phone,date_submit,datetime_reserve,price_pay,day_id,time_id)
                 VALUES (
                     '{name}',
                     '{phone}',
                     '{today_time}',
+                    '{datetime_reserve}',
                     '{self.price}',
                     '{day_id}',
                     '{self.id}'
@@ -231,10 +255,6 @@ class Day:
             :return => list times object => [time_obj,time_obj,...]
         """
         today_time = datetime.datetime.now()
-        datetime_range = (
-            today_time,
-            today_time + datetime.timedelta(weeks=1)
-        )
         results = []
         sql = f"""
                 SELECT day.day , time.*, `order`.id 
@@ -244,7 +264,7 @@ class Day:
                 INNER JOIN time
                     ON time.id = day_time.time_id
                 LEFT JOIN `order`
-                    ON `order`.day_id = day_time.day_id AND `order`.time_id = day_time.time_id AND `order`.date_submit <= '{datetime_range[1]}'
+                    ON `order`.day_id = day_time.day_id AND `order`.time_id = day_time.time_id AND `order`.datetime_reserve > '{today_time}'
                 WHERE day.id = '{self.id}'
         """
         conn = create_connection()
@@ -266,3 +286,24 @@ class Day:
         if today_num  == self.day:
             return True
         return False
+
+
+
+class ContactUs:
+
+    @classmethod
+    def add(self,name,phone,message):
+        sql = f"""
+              INSERT INTO contact_us (name,phone,message)
+              VALUES(
+                    '{name}',
+                    '{phone}',
+                    '{message}'
+              );    
+              """
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute(sql)
+        conn.commit()
+        close_connection(conn)
+        return 200
