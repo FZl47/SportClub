@@ -1,6 +1,6 @@
 
 DEBUG = True
-STATIC_URL = '/static/'
+STATIC_URL = '/static'
 
 
 # Note! The order should be like thi
