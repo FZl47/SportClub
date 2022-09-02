@@ -5,7 +5,7 @@ DB_PATH = 'db.sqlite'
 STATIC_URL = '/static'
 
 
-# Note! The order should be like thi
+# Note! The order should be like this
 
 WEEKDAYS = {
     1 : 'شنبه',
