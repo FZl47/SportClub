@@ -1,5 +1,7 @@
 
 DEBUG = True
+
+DB_PATH = 'db.sqlite'
 STATIC_URL = '/static'
 
 
