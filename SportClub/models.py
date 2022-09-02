@@ -2,35 +2,39 @@ import sqlite3
 import config
 import datetime
 
-_db_path = 'db.sqlite'
+
+class DATABASE:
+
+    def __init__(self,auto_commit=True):
+        self.auto_commit = auto_commit
 
 
-def create_connection():
-    conn = sqlite3.connect(_db_path)
-    return conn
+    def __enter__(self):
+        # Create Connection DB
+        conn = sqlite3.connect(config.DB_PATH)
+        self.conn = conn
+        self.cursor = conn.cursor()
+        return self
 
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # Commit SQL
+        if self.auto_commit:
+            self.conn.commit()
+        # Close Connection DB
+        self.conn.close()
+        # Delete Instance DATABASE
+        del self
 
-def close_connection(conn):
-    try:
-        conn.close()
-    except:
-        pass
 
 
 # Create Tables
-
 _LIST_FUNC_SQL_COMMANDS_CREATE_TABLE = []
-
 
 def sql_command_create_table(func):
     _LIST_FUNC_SQL_COMMANDS_CREATE_TABLE.append(func)
     def wrapper(*args):
         return func(*args)
-
     return wrapper
-
-
-
 
 
 @sql_command_create_table
@@ -124,13 +128,10 @@ def create_table_contactus():
 
 
 def _migrate():
-    conn = create_connection()
-    cursor = conn.cursor()
-    for handler_sql in _LIST_FUNC_SQL_COMMANDS_CREATE_TABLE:
-        sql = handler_sql()
-        cursor.execute(sql)
-    conn.commit()
-    close_connection(conn)
+    with DATABASE() as db:
+        for handler_sql in _LIST_FUNC_SQL_COMMANDS_CREATE_TABLE:
+            sql = handler_sql()
+            db.cursor.execute(sql)
     print('----------- Migrate Successfully ------------')
 
 
@@ -144,7 +145,6 @@ class Time:
         self.time_end = data.get('time_end')
         self.price = data.get('price')
         self.available = data.get('available')
-
 
     def __repr__(self):
         return 'time_obj'
@@ -161,30 +161,37 @@ class Time:
         }
 
     @classmethod
+    def add(cls,time_start,time_end,price):
+        with DATABASE() as db:
+            sql = f"""
+                        INSERT INTO `time` (time_start,time_end,price) VALUES (
+                            '{time_start}',
+                            '{time_end}',
+                            '{price}'
+                        );
+            """
+            db.cursor.execute(sql)
+        return 200
+
+    @classmethod
     def get(cls,time_id,day_id):
         today_time = datetime.datetime.now()
-        datetime_range = (
-            today_time,
-            today_time + datetime.timedelta(weeks=1)
-        )
-        sql = f"""
-                SELECT day.day , time.*, `order`.id
-                FROM day
-                INNER JOIN day_time
-                    ON day.id = day_time.day_id AND time.id = day_time.time_id
-                INNER JOIN time
-                    ON time.id = '{time_id}'
-                LEFT JOIN `order`
-                    ON `order`.day_id = day_time.day_id AND `order`.time_id = day_time.time_id  AND `order`.datetime_reserve <= '{datetime_range[1]}'
-                WHERE day.id = '{day_id}'
-        """
-        conn = create_connection()
-        cursor = conn.cursor()
-        time = cursor.execute(sql).fetchone()
-        time_obj = None
-        if time:
-            time_obj = Time(time)
-        close_connection(conn)
+        with DATABASE() as db:
+            sql = f"""
+                       SELECT day.day , time.*, `order`.id
+                       FROM day
+                       INNER JOIN day_time
+                           ON day.id = day_time.day_id AND time.id = day_time.time_id
+                       INNER JOIN time
+                           ON time.id = '{time_id}'
+                       LEFT JOIN `order`
+                                   ON `order`.day_id = day_time.day_id AND `order`.time_id = day_time.time_id AND `order`.datetime_reserve > '{today_time}'
+                       WHERE day.id = '{day_id}'
+            """
+            time = db.cursor.execute(sql).fetchone()
+            time_obj = None
+            if time:
+                time_obj = Time(time)
         return time_obj
 
     def reserve_time(self,name,phone,day_id):
@@ -194,23 +201,20 @@ class Time:
             days_delta += 7
         datetime_reserve = (today_time + datetime.timedelta(days=days_delta)).strftime('%Y-%m-%d')
 
-        sql = f"""
-                INSERT INTO `order` (`name`,phone,date_submit,datetime_reserve,price_pay,day_id,time_id)
-                VALUES (
-                    '{name}',
-                    '{phone}',
-                    '{today_time}',
-                    '{datetime_reserve}',
-                    '{self.price}',
-                    '{day_id}',
-                    '{self.id}'
-                );       
-        """
-        conn = create_connection()
-        cursor = conn.cursor()
-        cursor.execute(sql)
-        conn.commit()
-        close_connection(conn)
+        with DATABASE() as db:
+            sql = f"""
+                    INSERT INTO `order` (`name`,phone,date_submit,datetime_reserve,price_pay,day_id,time_id)
+                    VALUES (
+                        '{name}',
+                        '{phone}',
+                        '{today_time}',
+                        '{datetime_reserve}',
+                        '{self.price}',
+                        '{day_id}',
+                        '{self.id}'
+                    );       
+            """
+            db.cursor.execute(sql)
         return 200
 
 class Day:
@@ -224,22 +228,40 @@ class Day:
         return 'day_obj'
 
     @classmethod
+    def add(cls,day_num,times_ids=[]):
+        with DATABASE() as db:
+            sql = f"""
+                INSERT INTO `day` (day) VALUES ('{day_num}');
+            """
+            db.cursor.execute(sql)
+        return 200
+
+    @classmethod
+    def add_time(cls,day_id,time_id):
+        with DATABASE() as db:
+            sql = f"""
+                    INSERT INTO `day_time` (day_id,time_id) VALUES(
+                        '{day_id}',
+                        '{time_id}'
+                    );
+            """
+            db.cursor.execute(sql)
+        return 200
+
+    @classmethod
     def all(cls):
         """
             get all record table "day"
             :return => list days object => [day_obj,day_obj,...]
         """
         results = []
-        sql = f"""
+        with DATABASE() as db:
+            sql = f"""
                 SELECT * FROM day
-        """
-        conn = create_connection()
-        cursor = conn.cursor()
-        days_data = cursor.execute(sql).fetchall()
-        for day in days_data:
-            results.append(Day(day))
-        close_connection(conn)
-
+            """
+            days_data = db.cursor.execute(sql).fetchall()
+            for day in days_data:
+                results.append(Day(day))
         return results
 
 
@@ -256,23 +278,21 @@ class Day:
         """
         today_time = datetime.datetime.now()
         results = []
-        sql = f"""
-                SELECT day.day , time.*, `order`.id 
-                FROM day
-                INNER JOIN day_time 
-                    ON day.id = day_time.day_id
-                INNER JOIN time
-                    ON time.id = day_time.time_id
-                LEFT JOIN `order`
-                    ON `order`.day_id = day_time.day_id AND `order`.time_id = day_time.time_id AND `order`.datetime_reserve > '{today_time}'
-                WHERE day.id = '{self.id}'
-        """
-        conn = create_connection()
-        cursor = conn.cursor()
-        times_data = cursor.execute(sql).fetchall()
-        for time in times_data:
-            results.append(Time(time))
-        close_connection(conn)
+        with DATABASE() as db:
+            sql = f"""
+                    SELECT day.day , time.*, `order`.id 
+                    FROM day
+                    INNER JOIN day_time 
+                        ON day.id = day_time.day_id
+                    INNER JOIN time
+                        ON time.id = day_time.time_id
+                    LEFT JOIN `order`
+                        ON `order`.day_id = day_time.day_id AND `order`.time_id = day_time.time_id AND `order`.datetime_reserve > '{today_time}'
+                    WHERE day.id = '{self.id}'
+            """
+            times_data = db.cursor.execute(sql).fetchall()
+            for time in times_data:
+                results.append(Time(time))
         return results
 
 
@@ -289,21 +309,20 @@ class Day:
 
 
 
+
 class ContactUs:
 
     @classmethod
-    def add(self,name,phone,message):
-        sql = f"""
-              INSERT INTO contact_us (name,phone,message)
-              VALUES(
-                    '{name}',
-                    '{phone}',
-                    '{message}'
-              );    
-              """
-        conn = create_connection()
-        cursor = conn.cursor()
-        cursor.execute(sql)
-        conn.commit()
-        close_connection(conn)
+    def add(cls,name,phone,message):
+
+        with DATABASE() as db:
+            sql = f"""
+                 INSERT INTO contact_us (name,phone,message)
+                 VALUES(
+                       '{name}',
+                       '{phone}',
+                       '{message}'
+                 );    
+            """
+            db.cursor.execute(sql)
         return 200
