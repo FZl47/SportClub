@@ -1,13 +1,14 @@
+import tools
+import sys
+import config
+import models
 from flask import (
     Flask,
     jsonify,
     request,
     render_template
 )
-import tools
-import sys
-import config
-import models
+
 
 app = Flask(__name__)
 
@@ -39,18 +40,18 @@ def reserve_time():
             if time_object.available:
                 # Payment ...
                 time_object.reserve_time(name,phone,day_id)
+                # Show Message Successfully Reserved
                 return tools.Set_Cookie_Functionality('وقت شما با موفقیت رزرو شد','Success')
-                status_code = 200
             else:
-                status_code = 204
+                # Show Message Time is Not Available
+                return tools.Set_Cookie_Functionality('وقت مورد نظر شما موجود نمیباشد', 'Error')
         else:
-            status_code = 404
+            # Show Message Time Not Found
+            return tools.Set_Cookie_Functionality('وقت مورد نظر شما یافت نشد', 'Error')
     else:
-        status_code = 400
+        # Show Message Please Enter fields correctly
+        return tools.Set_Cookie_Functionality('لطفا فیلد هارا به درستی وارد نمایید', 'Error')
 
-    return jsonify({
-        'statuc_code':status_code
-    })
 
 @app.post('/submit-message')
 def submit_message():
